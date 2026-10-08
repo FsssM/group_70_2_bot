@@ -46,5 +46,5 @@ async def add_photo(message: Message, state: FSMContext):
 
     data = await state.get_data()
 
-    await message. answer_photo (photo=data['photo'], caption=f"Название: {data['name']}\nЦена: {data['price']}\nОписание: {data['description']}"`)
+    await message. answer_photo (photo=data['photo'], caption=f"Название: {data['name']}\nЦена: {data['price']}\nОписание: {data['description']}")
     await state.clear()

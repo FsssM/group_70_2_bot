@@ -55,14 +55,12 @@ async def quiz_start(callback: CallbackQuery):
     await callback.message.answer("Вопрос: На какой ОС мы работаем по совету учителя? 😎", reply_markup=quiz_answers)
 
 
-# Обработка ПРАВИЛЬНОГО ответа
 @router_commands.callback_query(F.data == "quiz_correct")
 async def quiz_right(callback: CallbackQuery):
     await callback.message.answer("Верно!")
     await callback.answer()
 
 
-# Обработка НЕПРАВИЛЬНОГО ответа
 @router_commands.callback_query(F.data == "quiz_wrong")
 async def quiz_bad(callback: CallbackQuery):
     await callback.message.answer("Неверно! Попробуйте ещё раз.")
