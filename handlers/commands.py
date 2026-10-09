@@ -65,3 +65,13 @@ async def quiz_right(callback: CallbackQuery):
 async def quiz_bad(callback: CallbackQuery):
     await callback.message.answer("Неверно! Попробуйте ещё раз.")
     await callback.answer()
+
+
+@router_commands.message(F.sticker)
+async def get_sticker_id(message: Message):
+    await message.answer(f'ID этого стикера - {message.sticker.file_id}')
+
+
+@router_commands.message(Command('sticker'))
+async def sticker_handler(message: Message):
+    await message.answer_sticker('CAACAgQAAxkBAANHasjwovX_4jciexabnTfLXO2mIAgAAjQaAAIwDvhTjfmtysL48cw9BA')
