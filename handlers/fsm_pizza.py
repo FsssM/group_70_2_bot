@@ -3,6 +3,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from database.db import save_pizza_order
 
 class PizzaOrder(StatesGroup):
     size = State()        
@@ -41,6 +42,8 @@ async def process_topping(message: Message, state: FSMContext):
 async def process_address(message: Message, state: FSMContext):
     await state.update_data(address=message.text)
     data = await state.get_data()
+    save_pizza_order(data['size'], data['topping'], data['address'])
+
     
     summary_text = (
         "Ваш заказ успешно принят!\n\n"
