@@ -1,28 +1,38 @@
 # функции для связи с бд
-import sqlite3
+import aiosqlite
 from database import queries
+from config import path_db
 
-path_db = "database/sqlite3.db"
+async def init_db():
+    async with aiosqlite.connect(path_db) as conn:
 
-def init_db():
-    conn = sqlite3.connect(path_db)
-    cursor = conn.cursor()
-    cursor.execute(queries.products_table)
-    cursor.execute(queries.CREATE_PIZZA_TABLE)
-    print('DB connect')
-    conn.commit()
-    conn.close()
+        await conn.execute(queries.products_table)
+        await conn.execute(queries.products_detail_table)
+        
+        await conn.execute(queries.create_pizza_table)
+        await conn.execute(queries.create_delivery_table)
+        
+        await conn.commit()
+    print('База данных успешно подключена')
 
-def add_product_db(name, price, description, photo):
-    conn = sqlite3.connect(path_db)
-    cursor = conn.cursor()
-    cursor.execute(queries.insert_product, (name, price, description, photo))
-    conn.commit()
-    conn.close()
 
-def save_pizza_order(size, topping, address):
-    conn = sqlite3.connect(path_db)
-    cursor = conn.cursor()
-    cursor.execute(queries.INSERT_PIZZA_ORDER, (size, topping, address))
-    conn.commit()
-    conn.close()
+async def add_product_db(name, price, description, photo, category, color, product_id):
+    async with aiosqlite.connect(path_db) as conn:
+        await conn.execute(queries.insert_product, (name, price, photo, product_id))
+        await conn.execute(queries.insert_product_detail, (category, color, product_id, description))
+        await conn.commit()
+
+
+async def save_pizza_and_delivery(size: str, topping: str, client_name: str, address: str):
+    async with aiosqlite.connect(path_db) as conn:
+        cursor = await conn.execute(queries.insert_pizza_order, (size, topping))
+        order_id = cursor.lastrowid
+        
+        await conn.execute(queries.insert_delivery_detail, (order_id, client_name, address))
+        await conn.commit()
+
+async def get_all_pizza_orders():
+    async with aiosqlite.connect(path_db) as conn:
+        conn.row_factory = aiosqlite.Row  
+        async with conn.execute(queries.SELECT_ALL_ORDERS_WITH_JOIN) as cursor:
+            return await cursor.fetchall()

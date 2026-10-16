@@ -1,7 +1,7 @@
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 from aiogram import F, Router
-
+from database.db import get_all_pizza_orders
 from handlers.keyboards import reply_keyboard, inline_keyboard
 
 router_commands = Router()
@@ -75,3 +75,20 @@ async def get_sticker_id(message: Message):
 @router_commands.message(Command('sticker'))
 async def sticker_handler(message: Message):
     await message.answer_sticker('CAACAgQAAxkBAANHasjwovX_4jciexabnTfLXO2mIAgAAjQaAAIwDvhTjfmtysL48cw9BA')
+
+@router_commands.message(Command('pizza_list'))
+async def show_pizza_orders(message: Message):
+    orders = await get_all_pizza_orders()
+    if not orders:
+        await message.answer("Список заказов пуст")
+        return
+    
+    await message.answer("Все заказы из базы:")
+    for row in orders:
+        text = (
+            f"Клиент: {row['client_name']}\n"
+            f"Пицца: {row['size']} см, Начинка: {row['topping']}\n"
+            f"Адрес доставки: {row['address']}\n"
+            f"------------------------"
+        )
+        await message.answer(text)

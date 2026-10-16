@@ -3,24 +3,29 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from database.db import save_pizza_order
+from database.db import save_pizza_and_delivery  
+
 
 class PizzaOrder(StatesGroup):
     size = State()        
     topping = State()     
+    client_name = State()
     address = State()     
 
 
 router_fsm = Router()
+
 
 @router_fsm.message(Command('pizza'))
 async def start_pizza_fsm(message: Message, state: FSMContext):
     await message.answer("Начинаем заказ пиццы!\nВведите размер пиццы в сантиметрах (например: 30 или 40):")
     await state.set_state(PizzaOrder.size)
 
+
 @router_fsm.message(F.text == "Заказать пиццу")
 async def start_pizza_button(message: Message, state: FSMContext):
     await start_pizza_fsm(message, state)
+
 
 @router_fsm.message(PizzaOrder.size)
 async def process_size(message: Message, state: FSMContext):
@@ -32,21 +37,36 @@ async def process_size(message: Message, state: FSMContext):
     await message.answer("Отлично! Теперь напишите желаемую начинку (например: Пепперони, Сырная):")
     await state.set_state(PizzaOrder.topping)
 
+
 @router_fsm.message(PizzaOrder.topping)
 async def process_topping(message: Message, state: FSMContext):
     await state.update_data(topping=message.text)
+    await message.answer("Введите ваше имя для оформления доставки:")
+    await state.set_state(PizzaOrder.client_name)
+
+
+@router_fsm.message(PizzaOrder.client_name)
+async def process_client_name(message: Message, state: FSMContext):
+    await state.update_data(client_name=message.text)
     await message.answer("И последнее: введите ваш адрес доставки:")
     await state.set_state(PizzaOrder.address)
+
 
 @router_fsm.message(PizzaOrder.address)
 async def process_address(message: Message, state: FSMContext):
     await state.update_data(address=message.text)
     data = await state.get_data()
-    save_pizza_order(data['size'], data['topping'], data['address'])
-
     
+    await save_pizza_and_delivery(
+        size=data['size'],
+        topping=data['topping'],
+        client_name=data['client_name'],
+        address=data['address']
+    )
+
     summary_text = (
-        "Ваш заказ успешно принят!\n\n"
+        "Ваш заказ успешно сохранен!\n\n"
+        f"Клиент: {data['client_name']}\n"
         f"Размер: {data['size']} см\n"
         f"Начинка: {data['topping']}\n"
         f"Адрес доставки: {data['address']}\n\n"
