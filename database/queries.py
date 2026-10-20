@@ -64,3 +64,6 @@ SELECT p.size, p.topping, d.client_name, d.address
 FROM pizza_orders p
 INNER JOIN delivery_details d ON p.order_id = d.order_id
 """
+
+DELETE_PRODUCT = "DELETE FROM products WHERE product_id = ?"
+DELETE_PRODUCT_DETAIL = "DELETE FROM products_detail WHERE product_id = ?"

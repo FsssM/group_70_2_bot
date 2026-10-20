@@ -36,3 +36,12 @@ async def get_all_pizza_orders():
         conn.row_factory = aiosqlite.Row  
         async with conn.execute(queries.SELECT_ALL_ORDERS_WITH_JOIN) as cursor:
             return await cursor.fetchall()
+
+async def delete_product_db(product_id: str):
+    async with aiosqlite.connect(path_db) as conn:
+        await conn.execute(queries.DELETE_PRODUCT, (product_id,))
+        await conn.execute(queries.DELETE_PRODUCT_DETAIL, (product_id,))
+        await conn.commit()
+
+async def check_employee_db(telegram_id: int):
+    return True

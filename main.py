@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from handlers import commands, echo, fsm_pizza, fsm_add_product, cafe
+from handlers import commands, echo, fsm_pizza, fsm_add_product, cafe, fsm_delete
 from config import bot, dp
 from database import db 
 
@@ -10,6 +10,7 @@ async def main():
     dp.include_router(fsm_pizza.router_fsm)
     dp.include_router(fsm_add_product.router_add_product)
     dp.include_router(cafe.router_cafe)
+    dp.include_router(fsm_delete.router_delete)
 
     
     dp.include_router(echo.router_echo)
